@@ -1,0 +1,40 @@
+name:                duckling-ffi
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/treble-ai/duckling-ffi
+license:             MIT
+license-file:        LICENSE
+author:              Edgar Andrés Margffoy Tuay
+maintainer:          edgar@treble.ai
+copyright:           2020 Edgar Andrés Margffoy Tuay
+category:            Systems
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+
+library
+  hs-source-dirs:      DucklingFFI
+  exposed-modules:     FFI
+  build-depends:       base
+                     , duckling
+                     , curryrs >= 0.2.0 && < 0.3.0
+                     , text
+                     , bytestring
+                     , extra
+                     , unordered-containers
+                     , directory
+                     , time
+                     , timezone-olson
+                     , timezone-series
+                     , filepath
+  default-language:    Haskell2010
+  ghc-options: -dynamic -fPIC -shared -o libduclkingffi.so
+  other-extensions: ForeignFunctionInterface
+
+source-repository head
+  type:     git
+  location: https://github.com/treble-ai/duckling-ffi
+
+

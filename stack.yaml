@@ -1,0 +1,12 @@
+packages:
+- .
+extra-deps:
+- git: https://github.com/facebook/duckling.git
+  commit: a93cae1c02c28c51e5bce1f03132a211bbda7dce
+- git: https://github.com/andfoy/curryrs.git
+  commit: 44da82c04036474802f4c1358d04e91adc40d1d9
+  subdirs:
+    - haskell
+- text-1.2.2.2
+- bytestring-0.10.8.1
+resolver: lts-9.10
