@@ -1,5 +1,7 @@
 module FFI
     ( someFunc
+     , wcurrentReftime
+     , wloadTimeZoneSeries
     ) where
 
 import Data.Text (Text)
