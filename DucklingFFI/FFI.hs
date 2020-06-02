@@ -17,6 +17,7 @@ import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.HashSet as HashSet
 import Data.String
+import Data.String.Conversions (cs)
 import Data.Time (TimeZone(..))
 import Data.Time.LocalTime.TimeZone.Olson
 import Data.Time.LocalTime.TimeZone.Series
@@ -30,9 +31,53 @@ import Foreign.C
 import Prelude
 import Curryrs.Types
 
-
+-- String wrapper
 newtype WrappedString = WrappedString { wrapString :: Foreign.C.CString }
-newtype WrappedTimeZoneSeries = WrappedTimeZoneSeries { timeSeries :: IO (HashMap Text TimeZoneSeries) }
+foreign export ccall stringCreate :: CString -> IO (Ptr ())
+foreign export ccall stringDestroy :: Ptr () -> IO ()
+foreign export ccall stringGet :: Ptr () -> IO CString
+
+stringCreate :: CString -> IO (Ptr ())
+stringCreate x = castStablePtrToPtr <$> newStablePtr (WrappedString x)
+
+stringDestroy :: Ptr () -> IO ()
+stringDestroy p = freeStablePtr sp
+  where sp :: StablePtr WrappedString
+        sp = castPtrToStablePtr p
+
+stringGet :: Ptr () -> IO CString
+stringGet p = wrapString <$> deRefStablePtr (castPtrToStablePtr p)
+
+
+-- TimeZoneSeries wrapper
+newtype WrappedTimeZoneSeries = WrappedTimeZoneSeries { timeSeries :: HashMap Text TimeZoneSeries }
+foreign export ccall tzdbDestroy :: Ptr () -> IO ()
+
+tzdbCreate :: HashMap Text TimeZoneSeries -> IO(Ptr ())
+tzdbCreate x = castStablePtrToPtr <$> newStablePtr (WrappedTimeZoneSeries x)
+
+tzdbDestroy :: Ptr () -> IO ()
+tzdbDestroy p = freeStablePtr sp
+  where sp :: StablePtr WrappedTimeZoneSeries
+        sp = castPtrToStablePtr p
+
+tzdbGet :: Ptr () -> IO(HashMap Text TimeZoneSeries)
+tzdbGet p = timeSeries <$> deRefStablePtr (castPtrToStablePtr p)
+
+-- DucklingTime wrapper
+newtype DucklingTimeWrapper = DucklingTimeWrapper { time :: DucklingTime }
+foreign export ccall duckTimeDestroy :: Ptr () -> IO ()
+
+duckTimeCreate :: DucklingTime -> IO(Ptr ())
+duckTimeCreate t = castStablePtrToPtr <$> newStablePtr (DucklingTimeWrapper t)
+
+duckTimeDestroy :: Ptr () -> IO ()
+duckTimeDestroy p = freeStablePtr sp
+  where sp :: StablePtr DucklingTimeWrapper
+        sp = castPtrToStablePtr p
+
+duckTimeGet :: Ptr () -> IO DucklingTime
+duckTimeGet p = time <$> deRefStablePtr ( castPtrToStablePtr p )
 
 -- | Reference implementation for pulling TimeZoneSeries data from local
 -- Olson files.
@@ -76,8 +121,33 @@ loadTimeZoneSeries base = do
     notDotFile s = not $ elem s [".", ".."]
 
 
+parseTimeZone :: Text -> Maybe ByteString -> Text
+parseTimeZone defaultTimeZone = maybe defaultTimeZone Text.decodeUtf8
+
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
+
+foreign export ccall wcurrentReftime :: Ptr() -> Ptr() -> IO(Ptr())
+
+wcurrentReftime  :: Ptr() -> Ptr() -> IO(Ptr())
+wcurrentReftime tzdb strPtr = do
+  timeSeries <- tzdbGet tzdb
+  wrapString <- stringGet strPtr
+  unwrappedStr <- peekCString $ wrapString
+  let hsStr = cs (unwrappedStr)
+  timeOut <- Duckling.Core.currentReftime timeSeries hsStr
+  convertedTime <- duckTimeCreate timeOut
+  return convertedTime
+
+foreign export ccall wloadTimeZoneSeries :: Ptr() -> IO(Ptr ())
+
+wloadTimeZoneSeries :: Ptr() -> IO(Ptr ())
+wloadTimeZoneSeries pathPtr = do
+  wrapString <- stringGet pathPtr
+  unwrapString <- peekCString $ wrapString
+  tzmap <- loadTimeZoneSeries unwrapString
+  wrappedDB <- tzdbCreate tzmap
+  return wrappedDB
 
 -- parseRefTime :: Text -> DucklingTime
 -- parseRefTime text = text
