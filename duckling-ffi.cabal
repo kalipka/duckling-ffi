@@ -31,11 +31,11 @@ library
                      , timezone-series
                      , filepath
   default-language:    Haskell2010
-  ghc-options: -dynamic -fPIC -shared -o libduclkingffi.so
+  ghc-options: -static -optl-static -fPIC
+  cc-options: -static
+  ld-options: -static
   other-extensions: ForeignFunctionInterface
 
 source-repository head
   type:     git
   location: https://github.com/treble-ai/duckling-ffi
-
-
