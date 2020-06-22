@@ -7,14 +7,14 @@ packages:
 - completed:
     name: duckling
     version: 0.1.6.1
-    git: https://github.com/facebook/duckling.git
+    git: https://github.com/treble-ai/duckling.git
     pantry-tree:
-      size: 72673
-      sha256: c88d1983aecb86ac4f06c48440ab176a6875436ae7d0768db7daef92a1290afa
-    commit: a93cae1c02c28c51e5bce1f03132a211bbda7dce
+      size: 72674
+      sha256: 0b548b7117894caa7fcfebb6053ff3421eaf32435b0062a0de54e103c255e846
+    commit: c6655319f17d725c8af6d2f2ac42fe747eab6a3c
   original:
-    git: https://github.com/facebook/duckling.git
-    commit: a93cae1c02c28c51e5bce1f03132a211bbda7dce
+    git: https://github.com/treble-ai/duckling.git
+    commit: c6655319f17d725c8af6d2f2ac42fe747eab6a3c
 - completed:
     subdir: haskell
     name: curryrs
@@ -28,23 +28,9 @@ packages:
     subdir: haskell
     git: https://github.com/andfoy/curryrs.git
     commit: 44da82c04036474802f4c1358d04e91adc40d1d9
-- completed:
-    hackage: text-1.2.2.2@sha256:4bf721f14931bef123aa9b122d18bceec3e9c5f141b9a8c9f3d4b933f851e435,6002
-    pantry-tree:
-      size: 7376
-      sha256: 83347d7a4ae34dc4e5d12dda06b22c0690d6186894da863ce574e71e4b72e738
-  original:
-    hackage: text-1.2.2.2
-- completed:
-    hackage: bytestring-0.10.8.1@sha256:ba427593b1c6a427aeb69622a0802ad2abb4ee3d4f586e1693036d3f0fcfe391,8921
-    pantry-tree:
-      size: 2788
-      sha256: 97850196e2d9cba1912fd052b3fe3fc4f3167c934afe2fb18ad79d68a6160b66
-  original:
-    hackage: bytestring-0.10.8.1
 snapshots:
 - completed:
-    size: 535263
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/9/10.yaml
-    sha256: ba6ba39d048b5a2054142209f00e7e456e30081c03ea72b6135983633b234535
-  original: lts-9.10
+    size: 523448
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/1.yaml
+    sha256: 0045b9bae36c3bb2dd374c29b586389845af1557eea0423958d152fc500d4fbf
+  original: lts-14.1

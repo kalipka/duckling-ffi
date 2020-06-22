@@ -31,7 +31,8 @@ library
                      , timezone-series
                      , filepath
   default-language:    Haskell2010
-  ghc-options: -static -static-library -optl-static -fPIC -o libducklingffi.a
+  extra-libraries:     HSrts
+  ghc-options: -static -staticlib -optl-static -fPIC -o libducklingffi.a
   cc-options: -static
   ld-options: -static
   other-extensions: ForeignFunctionInterface
