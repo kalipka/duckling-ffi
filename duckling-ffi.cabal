@@ -31,10 +31,14 @@ library
                      , timezone-series
                      , filepath
   default-language:    Haskell2010
-  extra-libraries:     HSrts
-  ghc-options: -static -staticlib -optl-static -fPIC -o libducklingffi.a
-  cc-options: -static
-  ld-options: -static
+  -- Static linking libraries
+  -- extra-libraries:     HSrts
+  -- Static compilation flags
+  -- ghc-options: -static -no-hs-main -staticlib -optl-static -fPIC -o libducklingffi.a
+  -- cc-options: -static
+  -- ld-options: -static
+  -- Dynamic compilation library
+  ghc-options: -dynamic -shared -o libducklingffi.so
   other-extensions: ForeignFunctionInterface
 
 source-repository head
