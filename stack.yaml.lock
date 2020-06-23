@@ -5,6 +5,9 @@
 
 packages:
 - completed:
+    cabal-file:
+      size: 56980
+      sha256: 9f9b070ac02e6e17d2e383d454abc665a6622a1ea0d7c75d63a81432eabe6f26
     name: duckling
     version: 0.1.6.1
     git: https://github.com/treble-ai/duckling.git
@@ -17,6 +20,9 @@ packages:
     commit: c6655319f17d725c8af6d2f2ac42fe747eab6a3c
 - completed:
     subdir: haskell
+    cabal-file:
+      size: 1894
+      sha256: 4751fc683aeffad8b5cc78f0bea3e7c5fbc969e35d2f70471ee0f5481545f78e
     name: curryrs
     version: 0.2.0
     git: https://github.com/andfoy/curryrs.git

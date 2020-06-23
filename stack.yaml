@@ -9,3 +9,7 @@ extra-deps:
     - haskell
 resolver: lts-14.1
 allow-newer: true
+ghc-options:
+  duckling: "-static -optl-static -fPIC"
+  time: "-static -optl-static -fPIC"
+  timezone-series: "-static -optl-static -fPIC"
