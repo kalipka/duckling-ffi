@@ -86,6 +86,7 @@ duckTimeGet p = time <$> deRefStablePtr ( castPtrToStablePtr p )
 -- Many linux distros have Olson data in "/usr/share/zoneinfo/"
 loadTimeZoneSeries :: FilePath -> IO (HashMap Text TimeZoneSeries)
 loadTimeZoneSeries base = do
+  putStrLn base
   files <- getFiles base
   tzSeries <- mapM parseOlsonFile files
   -- This data is large, will live a long time, and essentially be constant,
@@ -129,24 +130,28 @@ parseTimeZone defaultTimeZone = maybe defaultTimeZone Text.decodeUtf8
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
 
-foreign export ccall wcurrentReftime :: Ptr() -> Ptr() -> IO(Ptr())
+foreign export ccall wcurrentReftime :: Ptr() -> CString -> IO(Ptr())
 
-wcurrentReftime  :: Ptr() -> Ptr() -> IO(Ptr())
-wcurrentReftime tzdb strPtr = do
+wcurrentReftime  :: Ptr() -> CString -> IO(Ptr())
+wcurrentReftime tzdb tzStr = do
+  print "Calling wcurrentReftime"
   timeSeries <- tzdbGet tzdb
-  wrapString <- stringGet strPtr
-  unwrappedStr <- peekCString $ wrapString
+  print timeSeries
+  -- wrapString <- stringGet strPtr
+  unwrappedStr <- peekCString $ tzStr
+  print unwrappedStr
   let hsStr = cs (unwrappedStr)
   timeOut <- Duckling.Core.currentReftime timeSeries hsStr
+  print timeOut
   convertedTime <- duckTimeCreate timeOut
   return convertedTime
 
-foreign export ccall wloadTimeZoneSeries :: Ptr() -> IO(Ptr ())
+foreign export ccall wloadTimeZoneSeries :: CString -> IO(Ptr ())
 
-wloadTimeZoneSeries :: Ptr() -> IO(Ptr ())
-wloadTimeZoneSeries pathPtr = do
-  wrapString <- stringGet pathPtr
-  unwrapString <- peekCString $ wrapString
+wloadTimeZoneSeries :: CString -> IO(Ptr ())
+wloadTimeZoneSeries pathCStr = do
+  unwrapString <- peekCString $ pathCStr
+  putStrLn unwrapString
   tzmap <- loadTimeZoneSeries unwrapString
   wrappedDB <- tzdbCreate tzmap
   return wrappedDB

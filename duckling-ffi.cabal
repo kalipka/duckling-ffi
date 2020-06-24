@@ -38,7 +38,7 @@ library
   -- cc-options: -static
   -- ld-options: -static
   -- Dynamic compilation library
-  ghc-options: -dynamic -shared -o libducklingffi.so
+  ghc-options: -dynamic -no-hs-main -shared -o libducklingffi.so
   other-extensions: ForeignFunctionInterface
 
 source-repository head
