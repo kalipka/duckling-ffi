@@ -14,6 +14,7 @@ import qualified Data.Text.Encoding as Text
 
 import qualified Control.Exception as E
 import Control.Monad.Extra
+import Control.Monad.IO.Class
 import Data.Either
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HashMap
@@ -23,15 +24,17 @@ import Data.String.Conversions (cs)
 import Data.Time (TimeZone(..))
 import Data.Time.LocalTime.TimeZone.Olson
 import Data.Time.LocalTime.TimeZone.Series
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import System.Directory
 import System.FilePath
 
 import Foreign.StablePtr
 import Foreign.Ptr
 import Foreign.C
+import Foreign.C.Types
 
 import Prelude
-import Curryrs.Types
+-- import Curryrs.Types
 
 -- String wrapper
 newtype WrappedString = WrappedString { wrapString :: Foreign.C.CString }
@@ -158,3 +161,13 @@ wloadTimeZoneSeries pathCStr = do
 
 -- parseRefTime :: Text -> DucklingTime
 -- parseRefTime text = text
+foreign export ccall wparseRefTime :: Ptr() -> CString -> CSUSeconds -> IO(Ptr ())
+
+wparseRefTime :: Ptr() -> CString -> CSUSeconds -> IO(Ptr ())
+wparseRefTime tzdb tzCStr refTimeC = do
+  timeSeries <- tzdbGet tzdb
+  unwrappedStr <- peekCString $ tzCStr
+  let utcTime = posixSecondsToUTCTime (realToFrac refTimeC)
+  let refTime = makeReftime timeSeries (cs(unwrappedStr)) utcTime
+  wrappedRefTime <- duckTimeCreate refTime
+  return wrappedRefTime

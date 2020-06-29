@@ -15,19 +15,6 @@ packages:
   original:
     git: https://github.com/treble-ai/duckling.git
     commit: c6655319f17d725c8af6d2f2ac42fe747eab6a3c
-- completed:
-    subdir: haskell
-    name: curryrs
-    version: 0.2.0
-    git: https://github.com/andfoy/curryrs.git
-    pantry-tree:
-      size: 971
-      sha256: 5df16e7cff5841cf8f9c3f489988c6c25c03efb5c9c99155776bab118c0652cf
-    commit: 44da82c04036474802f4c1358d04e91adc40d1d9
-  original:
-    subdir: haskell
-    git: https://github.com/andfoy/curryrs.git
-    commit: 44da82c04036474802f4c1358d04e91adc40d1d9
 snapshots:
 - completed:
     size: 523448
