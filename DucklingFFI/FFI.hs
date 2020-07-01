@@ -13,10 +13,12 @@ import           Data.ByteString                ( ByteString
 import           Duckling.Core
 -- import Duckling.Data.TimeZone
 import           Duckling.Resolve               ( DucklingTime )
+import           Data.Aeson
 import           Data.Maybe
 import           Data.Tuple
 import qualified Data.Text                     as Text
 import qualified Data.Text.Encoding            as Text
+import qualified Data.ByteString.Lazy.Char8    as C8
 
 import qualified Control.Exception             as E
 import           Control.Monad.Extra
@@ -314,3 +316,30 @@ wparseDimensions n dimensionsPtr = do
   let cLength = toEnum(length(dimensions))
   wrappedDimList <- dimensionListCreate wrappedDimensions cLength
   return wrappedDimList
+
+unwrapDimension :: Ptr() -> Some Dimension
+unwrapDimension p = unsafePerformIO(dimensionGet p)
+
+
+foreign export ccall wparseText :: CString -> Ptr() -> Ptr() -> Ptr() -> CBool -> IO(CString)
+wparseText :: CString -> Ptr() -> Ptr() -> Ptr() -> CBool -> IO(CString)
+wparseText cText refTimePtr localePtr dimListPtr cWithLatent = do
+  refTime <- duckTimeGet refTimePtr
+  locale <- localeGet localePtr
+  dimLength <- dimensionListLength dimListPtr
+  dimRefs <- dimensionListPtrs dimListPtr
+  dimPtrs <- peekArray (fromInteger(toInteger dimLength)) dimRefs
+  let dimensions = map unwrapDimension dimPtrs
+  -- dimensions <- newArray =<< traverse unwrapDimension dimPtrs
+  let context = Context {
+    referenceTime = refTime,
+    locale = locale
+  }
+  let options = Options {
+    withLatent = (cWithLatent == 1)
+  }
+  let textT = convertString(cText)
+  let entities = parse textT context options dimensions
+  let entityStr = C8.unpack(encode entities)
+  cEntities <- newCString entityStr
+  return cEntities

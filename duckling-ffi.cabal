@@ -19,6 +19,7 @@ library
   exposed-modules:     FFI
   build-depends:       base
                      , duckling
+                     , aeson
                     --  , curryrs >= 0.2.0 && < 0.3.0
                      , text
                      , bytestring
