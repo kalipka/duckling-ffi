@@ -12,7 +12,7 @@ import           Data.ByteString                ( ByteString
                                                 )
 import           Duckling.Core
 -- import Duckling.Data.TimeZone
-import           Duckling.Resolve               ( DucklingTime )
+import           Duckling.Resolve               ( DucklingTime(..) )
 import           Data.Aeson
 import           Data.Maybe
 import           Data.Tuple
@@ -23,6 +23,7 @@ import qualified Data.ByteString.Lazy.Char8    as C8
 import qualified Control.Exception             as E
 import           Control.Monad.Extra
 import           Control.Monad.IO.Class
+import           Data.Coerce
 import           Data.Either
 import           Data.HashMap.Strict            ( HashMap )
 import qualified Data.HashMap.Strict           as HashMap
@@ -32,6 +33,7 @@ import           Data.String.Conversions        ( cs )
 import           Data.Time                      ( TimeZone(..) )
 import           Data.Time.LocalTime.TimeZone.Olson
 import           Data.Time.LocalTime.TimeZone.Series
+import           Data.Time.Format
 import           Data.Time.Clock.POSIX          ( posixSecondsToUTCTime )
 import           System.Directory
 import           System.FilePath
@@ -79,6 +81,17 @@ duckTimeDestroy p = freeStablePtr sp
 duckTimeGet :: Ptr () -> IO DucklingTime
 duckTimeGet p = time <$> deRefStablePtr (castPtrToStablePtr p)
 
+duckTimeToZST :: DucklingTime -> ZoneSeriesTime
+duckTimeToZST (DucklingTime zst) = zst
+
+foreign export ccall duckTimeRepr :: Ptr() -> IO(CString)
+duckTimeRepr p = do
+  duckTime <- duckTimeGet p
+  let zt = duckTimeToZST duckTime
+  let dateRepr = formatTime defaultTimeLocale "%FT%T%Q%z" zt
+  cRepr <- newCString dateRepr
+  return cRepr
+
 -- Lang wrapper
 newtype LangWrapper = LangWrapper { lang :: Lang }
 foreign export ccall langDestroy :: Ptr () -> IO ()
@@ -95,6 +108,13 @@ langDestroy p = freeStablePtr sp
 langGet :: Ptr () -> IO Lang
 langGet p = lang <$> deRefStablePtr (castPtrToStablePtr p)
 
+foreign export ccall langRepr :: Ptr() -> IO(CString)
+langRepr p = do
+  langName <- langGet p
+  let langR = show langName
+  cRepr <- newCString langR
+  return cRepr
+
 -- Locale wrapper
 newtype LocaleWrapper = LocaleWrapper { loc :: Locale }
 foreign export ccall localeDestroy :: Ptr () -> IO ()
@@ -110,6 +130,13 @@ localeDestroy p = freeStablePtr sp
 
 localeGet :: Ptr () -> IO Locale
 localeGet p = loc <$> deRefStablePtr (castPtrToStablePtr p)
+
+foreign export ccall localeRepr :: Ptr() -> IO(CString)
+localeRepr p = do
+  localeF <- localeGet p
+  let localeR = show localeF
+  cRepr <- newCString localeR
+  return cRepr
 
 -- Dimension wrapper
 newtype DimensionWrapper = DimensionWrapper { dimen :: Some Dimension }
@@ -167,7 +194,6 @@ dimensionListDestroy p = freeStablePtr sp
 -- Many linux distros have Olson data in "/usr/share/zoneinfo/"
 loadTimeZoneSeries :: FilePath -> IO (HashMap Text TimeZoneSeries)
 loadTimeZoneSeries base = do
-  putStrLn base
   files    <- getFiles base
   tzSeries <- mapM parseOlsonFile files
   -- This data is large, will live a long time, and essentially be constant,
@@ -213,15 +239,11 @@ foreign export ccall wcurrentReftime :: Ptr() -> CString -> IO(Ptr())
 
 wcurrentReftime :: Ptr () -> CString -> IO (Ptr ())
 wcurrentReftime tzdb tzStr = do
-  print "Calling wcurrentReftime"
   timeSeries <- tzdbGet tzdb
-  print timeSeries
   -- wrapString <- stringGet strPtr
   unwrappedStr <- peekCString $ tzStr
-  print unwrappedStr
   let hsStr = cs (unwrappedStr)
   timeOut <- Duckling.Core.currentReftime timeSeries hsStr
-  print timeOut
   convertedTime <- duckTimeCreate timeOut
   return convertedTime
 
@@ -230,7 +252,6 @@ foreign export ccall wloadTimeZoneSeries :: CString -> IO(Ptr ())
 wloadTimeZoneSeries :: CString -> IO (Ptr ())
 wloadTimeZoneSeries pathCStr = do
   unwrapString <- peekCString $ pathCStr
-  putStrLn unwrapString
   tzmap     <- loadTimeZoneSeries unwrapString
   wrappedDB <- tzdbCreate tzmap
   return wrappedDB
