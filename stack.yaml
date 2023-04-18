@@ -3,13 +3,5 @@ packages:
 extra-deps:
 - git: https://github.com/treble-ai/duckling.git
   commit: c6655319f17d725c8af6d2f2ac42fe747eab6a3c
-# - git: https://github.com/andfoy/curryrs.git
-#   commit: 44da82c04036474802f4c1358d04e91adc40d1d9
-#   subdirs:
-#     - haskell
-resolver: lts-14.1
+resolver: lts-16.31
 allow-newer: true
-#ghc-options:
-#  duckling: "-static -optl-static -fPIC"
-#  time: "-static -optl-static -fPIC"
-#  timezone-series: "-static -optl-static -fPIC"
