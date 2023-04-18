@@ -1,7 +1,7 @@
 packages:
 - .
 extra-deps:
-- git: https://github.com/treble-ai/duckling.git
-  commit: c6655319f17d725c8af6d2f2ac42fe747eab6a3c
+- git: https://github.com/kalipka/duckling.git
+  commit: eb756840cdef20a1af4c5a2576f114870b91640e
 resolver: lts-16.31
 allow-newer: true
