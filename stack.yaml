@@ -3,5 +3,6 @@ packages:
 extra-deps:
 - git: https://github.com/kalipka/duckling.git
   commit: eb756840cdef20a1af4c5a2576f114870b91640e
+- dependent-sum-0.4@sha256:40c705604f52374fb72616e10234635104a626ede737ddde899777b719df120b,1907
 resolver: lts-16.31
 allow-newer: true
